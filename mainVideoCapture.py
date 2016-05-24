@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 import picamera
 from datetime import datetime
 from subprocess import call
@@ -36,7 +36,7 @@ def startCamera(e):
 
 def stopCamera(e):
     # Wait for user to press a key to stop recording
-    input("Press any key to stop recording....")
+    raw_input("Press any key to stop recording....")
     e.set()
 
     # Closing procedure
