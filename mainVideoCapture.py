@@ -4,6 +4,7 @@ from datetime import datetime
 from subprocess import call
 import threading
 from time import sleep
+import os
 
 
 def startCamera(e):
@@ -14,7 +15,7 @@ def startCamera(e):
     mQuality = 10		# For H264 format, 10 is min value for the highest quality
 
     prevRawVideo = ""
-    prevVidName  = ""
+    prevVidName = ""
 
     for i in range(0, 10):
         ts = datetime.now()
@@ -30,9 +31,9 @@ def startCamera(e):
 
             # Video Format conversion must be done after splitting occured
             # Otherwise, an exception is thrown by picamera
-            formatVidThread = threading.Thread(name='Format_Video',
-            				target=convertVidFormat,
-            				args=(prevVidName, prevRawVideo))
+            formatVidThread = threading.Thread( name='Format_Video',
+            									target=convertVidFormat,
+            									args=(prevVidName, prevRawVideo))
             formatVidThread.start()
 
         # Verify periodically if stop recording signal emitted (using thread event "e")
@@ -45,8 +46,8 @@ def startCamera(e):
             else:
                 sleep(inc)
 
-	prevRawVideo = raw_video
-	prevVidName  = video_name
+    prevRawVideo = raw_video
+    prevVidName = video_name
 
     return
 
@@ -68,7 +69,12 @@ def convertVidFormat(baseFilename, origFilepath):
         out_video = outputDir + baseFilename + ".mp4"
 
         command = "MP4Box -add " + origFilepath + " " + out_video
+        sleep(5)  	# Wait for video splitting to complete
         call([command], shell=True)
+
+        # Remove original video file
+        sleep(5)  	# wait for format conversion to complete
+        os.remove(origFilepath)
         return
 
 
