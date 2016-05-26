@@ -12,7 +12,7 @@ def startCamera(e):
     maxVidLen = 10         # Length of each video file (in seconds)
     inc = 1                # Increment (seconds) to check if key pressed to stop recording
     mBitRate = 25000000    # Max supported bit rate to provide higher quality
-    mQuality = 10		# For H264 format, 10 is min value for the highest quality
+    mQuality = 10	   # For H264 format, 10 is min value for the highest quality
 
     prevRawVideo = ""
     prevVidName = ""
@@ -31,9 +31,7 @@ def startCamera(e):
 
             # Video Format conversion must be done after splitting occured
             # Otherwise, an exception is thrown by picamera
-            formatVidThread = threading.Thread( name='Format_Video',
-            									target=convertVidFormat,
-            									args=(prevVidName, prevRawVideo))
+            formatVidThread = threading.Thread( name='Format_Video',target=convertVidFormat, args=(prevVidName, prevRawVideo))
             formatVidThread.start()
 
         # Verify periodically if stop recording signal emitted (using thread event "e")
@@ -82,8 +80,6 @@ def convertVidFormat(baseFilename, origFilepath):
 mFrameRate = 30
 mResolution = (1920, 1080)    # HD Resolution (1080p)
 camera = picamera.PiCamera(resolution=mResolution, framerate=mFrameRate)
-#camera.framerate = 30
-#camera.resolution = (1920, 1080)    # HD Resolution (1080p)
 
 outputDir = "/home/pi/Desktop/Video_Capture/Data/"
 

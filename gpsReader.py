@@ -3,7 +3,6 @@ from datetime import datetime
 
 
 # Input
-ts = datetime.now()
 gpsDir = "/home/pi/Desktop/Video_Capture/Data/"
 
 # Listen on port 2947 (gpsd) of localhost
@@ -29,16 +28,16 @@ while True:
                 with open(gpsFile, 'w') as f:
                     f.write('LAT,LON,ALT,SPEED,CLIMB,TIME\n')
 
-            else:
-                time = str(report.time)
-                lat = str(report.lat)        # Degrees (North:+ South:-)
-                lon = str(report.lon)        # Degrees (East:+  West:-)
-                alt = str(report.alt)        # Meters
-                speed = str(report.speed)    # Meters per second
-                climb = str(report.climb)    # Climb(+) or Sink(-) in meters per second
 
-                with open(gpsFile, 'a') as f:
-                    f.write('{0},{1},{2},{3},{4},{5}\n'.format(lat, lon, alt, speed, climb, time))
+            time = str(report.time)
+            lat = str(report.lat)        # Degrees (North:+ South:-)
+            lon = str(report.lon)        # Degrees (East:+  West:-)
+            alt = str(report.alt)        # Meters
+            speed = str(report.speed)    # Meters per second
+            climb = str(report.climb)    # Climb(+) or Sink(-) in meters per second
+
+            with open(gpsFile, 'a') as f:
+                f.write('{0},{1},{2},{3},{4},{5}\n'.format(lat, lon, alt, speed, climb, time))
 
     except KeyError:
         pass
