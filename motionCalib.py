@@ -5,6 +5,15 @@ from Adafruit_BNO055 import BNO055
 bno = BNO055.BNO055()
 bno.begin(mode=BNO055.OPERATION_MODE_NDOF)
 
+# Set Unit
+unitSel = bno._read_byte(BNO055.BNO055_UNIT_SEL_ADDR)
+newUnitSel = unitSel | 0x01
+bno._write_byte(BNO055.BNO055_UNIT_SEL_ADDR, 0x10000001)
+time.sleep(1)
+finalUnitSel = bno._read_byte(BNO055.BNO055_UNIT_SEL_ADDR)
+print("Unit Select: prev = {0:b} - new = {1:b} - final = {2:b}".format(unitSel, newUnitSel, finalUnitSel))
+
+# Create new output file
 outputDir = "/home/pi/Desktop/Video_Capture/Data/"
 ts = datetime.now()
 outFile = outputDir + "calib_motion_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)

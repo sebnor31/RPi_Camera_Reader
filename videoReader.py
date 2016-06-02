@@ -39,7 +39,12 @@ class VideoReader(Thread):
                 camera.wait_recording(maxVidLen)
 
             else:
-                camera.split_recording(raw_video)
+				try:  
+                    camera.split_recording(raw_video)
+                    
+                except picamera.PiCameraRuntimeError:
+                    camera.stop_recording()
+                    camera.start_recording(raw_video, bitrate=mBitRate, quality=mQuality))
 
                 # Video Format conversion must be done after splitting occured
                 # Otherwise, an exception is thrown by picamera
