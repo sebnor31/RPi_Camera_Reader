@@ -35,8 +35,8 @@ class GpsReader(Thread):
                     if not gpsFound:
                         print("GPS : Connected!!")
                         gpsFound = True
-                        gpsFile = self.outDir + "gps_{0}-{1}-{2}_{3}-{4}.csv".format(
-                            ts.year, ts.month, ts.day, ts.hour, ts.minute)
+                        gpsFile = self.outDir + "gps_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(
+                            ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
 
                         with open(gpsFile, 'w') as f:
                             f.write('LAT,LON,ALT,SPEED,CLIMB,GPS_TIME,RPI_TIME\n')

@@ -20,8 +20,8 @@ class VideoReader(Thread):
         camera = picamera.PiCamera(resolution=mResolution, framerate=mFrameRate)
 
         # Setup recording parameters
-        maxVidLen = 10        # Length of each video file (in seconds)
-        mBitRate = 25000000   # Max supported bit rate to provide higher quality
+        maxVidLen = 3600       # Length of each video file (in seconds)
+        mBitRate = 25000000    # Max supported bit rate to provide higher quality
         mQuality = 10	       # For H264 format, 10 is min value for the highest quality
 
         prevRawVideo = ""
@@ -30,8 +30,8 @@ class VideoReader(Thread):
         vidIdx = 0
         while True:
             ts = datetime.now()
-            video_name = "video_{0}-{1}-{2}_{3}-{4}_{5}".format(ts.year, ts.month,
-                                                                ts.day, ts.hour, ts.minute, vidIdx)
+            video_name = "video_{0}-{1}-{2}_{3}-{4}-{5}_{6}".format(ts.year, ts.month,
+                                                                ts.day, ts.hour, ts.minute, ts.second, vidIdx)
             raw_video = self.outDir + video_name + ".h264"
 
             if (vidIdx == 0):

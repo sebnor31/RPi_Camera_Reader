@@ -7,7 +7,7 @@ bno.begin(mode=BNO055.OPERATION_MODE_NDOF)
 
 outputDir = "/home/pi/Desktop/Video_Capture/Data/"
 ts = datetime.now()
-outFile = outputDir + "calib_motion_{0}-{1}-{2}_{3}-{4}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute)
+outFile = outputDir + "calib_motion_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
 with open(outFile, 'w') as f:
     header = 'ACCEL_X,ACCEL_Y,ACCEL_Z,GYRO_X,GYRO_Y,GYRO_Z,MAG_X,MAG_Y,MAG_Z,ELAPSED_TIME\n'
     f.write(header)
