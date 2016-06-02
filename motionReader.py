@@ -35,7 +35,7 @@ class MotionReader(Thread):
             raise RuntimeError("BNO: Error reported by internal status")
 
         ts = datetime.now()
-        outFile = self.outDir + "motion_{0}-{1}-{2}_{3}-{4}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute)
+        outFile = self.outDir + "motion_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
 
         with open(outFile, 'w') as f:
             header = 'ACCEL_X,ACCEL_Y,ACCEL_Z,GYRO_X,GYRO_Y,GYRO_Z,MAG_X,MAG_Y,MAG_Z,HEAD,ROLL,PITCH,LIN_X,LIN_Y,LIN_Z,GRAV_X,GRAV_Y,GRAV_Z,TIME\n'

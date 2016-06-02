@@ -3,7 +3,7 @@ from videoReader import VideoReader
 from gpsReader import GpsReader
 
 
-outputDir = "/home/pi/Desktop/Video_Capture/Data/"
+outputDir = "/home/pi/Desktop/Data_Collection/Data/"
 
 motionReader = MotionReader(outputDir)
 motionReader.start()
