@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-rawCalibFile = "/home/pi/Desktop/Video_Capture/Data/calib_motion_2016-6-1_11-52.csv"
+rawCalibFile = "C:\Users\sebnor\Dropbox\Internships\Wheego\calib_motion_2016-6-1_14-34.csv"
 a = np.genfromtxt(rawCalibFile, delimiter=',')
 
 print('Num of Rows: %d' % len(a))
