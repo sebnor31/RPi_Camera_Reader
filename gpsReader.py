@@ -52,7 +52,7 @@ class GpsReader(Thread):
                     with open(gpsFile, 'a') as f:
                         f.write('{0},{1},{2},{3},{4},{5},{6}\n'.format(lat, lon, alt, speed, climb, time, ts))
 
-			except AttributeError:
+	    except AttributeError:
                 continue
 				
             except KeyError:

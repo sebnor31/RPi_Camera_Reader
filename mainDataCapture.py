@@ -1,10 +1,17 @@
 from motionReader import MotionReader
 from videoReader import VideoReader
 from gpsReader import GpsReader
+from subprocess import call
 
+# Dir where data will be saved
+# Make sure it also corresponds to the mount dir
+outputDir = "/mnt/wheego/Data/"
 
-outputDir = "/home/pi/Desktop/Data_Collection/Data/"
+# Mount Falsh drive to wheego folder
+command = 'sudo mount -o uid=pi,gid=pi /dev/sda1 /mnt/wheego'
+call(command, shell=True)
 
+# Launch data capture threads
 motionReader = MotionReader(outputDir)
 motionReader.start()
 
