@@ -1,4 +1,5 @@
-from motionReader import MotionReader
+#from motionReader import MotionReader
+from motionReaderRich import MotionReader
 from videoReader import VideoReader
 from gpsReader import GpsReader
 from subprocess import call
@@ -12,8 +13,8 @@ command = 'sudo mount -o uid=pi,gid=pi /dev/sda1 /mnt/wheego'
 call(command, shell=True)
 
 # Launch data capture threads
-motionReader = MotionReader(outputDir)
-motionReader.start()
+#motionReader = MotionReader(outputDir)
+#motionReader.start()
 
 videoReader = VideoReader(outputDir)
 videoReader.start()

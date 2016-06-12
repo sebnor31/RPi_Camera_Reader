@@ -1,3 +1,4 @@
+#! /usr/bin/python
 from threading import Thread
 import gps
 from datetime import datetime
@@ -10,8 +11,8 @@ class GpsReader(Thread):
         Thread.__init__(self)
         self.outDir = outputDir
 
-        command = "sudo gpsd /dev/serial0 -F /var/run/gpsd.sock"
-        call([command], shell=True)
+        #command = "sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock"
+        #call([command], shell=True)
 
     def run(self):
         # Listen on port 2947 (gpsd) of localhost
