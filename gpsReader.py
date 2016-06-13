@@ -1,70 +1,86 @@
 #! /usr/bin/python
-from threading import Thread
-import gps
-from datetime import datetime
-from subprocess import call
+# Author: Nordine Sebkhi
+
+import os
+from gps import *
+from time import *
+import time
+import threading
 
 
-class GpsReader(Thread):
+class GpsReader(threading.Thread):
 
     def __init__(self, outputDir):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
+        self.gpsPoller = GpsPoller()
         self.outDir = outputDir
 
-        #command = "sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock"
-        #call([command], shell=True)
-
     def run(self):
-        # Listen on port 2947 (gpsd) of localhost
-        session = gps.gps("localhost", "2947")
-        session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+        print("GPS: Connecting...")
+        self.gpsPoller.start()
 
-        print("GPS : Connecting.... ")
         gpsFound = False
 
         while True:
-            try:
-                report = session.next()
+            gpsData = self.gpsPoller.getCurrentValue()
 
-                # Wait for a "TPV" report and display current time
-                if hasattr(report, 'lat'):
+            if (gpsData is not None and hasattr(gpsData, 'mode') and gpsData.mode == 3):
 
-                    # Get time stamp of current sample
-                    ts = datetime.now()
+                # Get time stamp of current sample
+                ts = datetime.now()
 
-                    # Create new file at each new data collection
-                    if not gpsFound:
-                        print("GPS : Connected!!")
-                        gpsFound = True
-                        gpsFile = self.outDir + "gps_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(
-                            ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
+                # Create new file at each new data collection
+                if not gpsFound:
+                    print("GPS : Connected!!")
+                    gpsFound = True
+                    gpsFile = self.outDir + "gps_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(
+                        ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
 
-                        with open(gpsFile, 'w') as f:
-                            f.write('LAT,LON,ALT,SPEED,CLIMB,GPS_TIME,RPI_TIME\n')
+                    with open(gpsFile, 'w') as f:
+                        f.write('LAT,LON,ALT,SPEED,CLIMB,GPS_TIME,RPI_TIME\n')
 
-                    # Append gps data
-                    time = str(report.time)
-                    lat = str(report.lat)        # Degrees (North:+ South:-)
-                    lon = str(report.lon)        # Degrees (East:+  West:-)
-                    alt = str(report.alt)        # Meters
-                    speed = str(report.speed)    # Meters per second
-                    climb = str(report.climb)    # Climb(+) or Sink(-) in meters per second
+                # Append gps data
+                timeGPS = str(gpsData.time)
+                lat = str(gpsData.lat)        # Degrees (North:+ South:-)
+                lon = str(gpsData.lon)        # Degrees (East:+  West:-)
+                alt = str(gpsData.alt)        # Meters
+                speed = str(gpsData.speed)    # Meters per second
+                climb = str(gpsData.climb)    # Climb(+) or Sink(-) in meters per second
 
-                    with open(gpsFile, 'a') as f:
-                        f.write('{0},{1},{2},{3},{4},{5},{6}\n'.format(lat, lon, alt, speed, climb, time, ts))
+                with open(gpsFile, 'a') as f:
+                    f.write('{0},{1},{2},{3},{4},{5},{6}\n'.format(lat, lon, alt, speed, climb, timeGPS, ts))
 
-	    except AttributeError:
-                continue
-				
-            except KeyError:
-                pass
+                # Print data
+                #os.system('clear')
+                #print(gpsData)
+                #print
+                #print ' GPS reading'
+                #print '----------------------------------------'
+                #print 'time        ', gpsData.time
+                #print 'latitude    ', gpsData.lat
+                #print 'longitude   ', gpsData.lon
+                #print 'altitude (m)', gpsData.alt
+                #print 'speed (m/s) ', gpsData.speed
+                #print 'climb       ', gpsData.climb
+                #print 'mode        ', gpsData.mode
 
-            except StopIteration:
-                session = None
-                print("GPSD has terminated")
-
-            except KeyboardInterrupt:
-                quit()
+                time.sleep(0.5)      # set to whatever
 
 
+class GpsPoller(threading.Thread):
 
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.gpsd = gps(mode=WATCH_ENABLE)   # starting the stream of info
+        self.current_value = None
+
+    def getCurrentValue(self):
+        return self.current_value
+
+    def run(self):
+        try:
+            while True:
+                self.current_value = self.gpsd.next()
+
+        except StopIteration:
+            pass
