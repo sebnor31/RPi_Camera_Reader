@@ -6,6 +6,7 @@ from gps import *
 from time import *
 import time
 import threading
+from datetime import datetime
 
 
 class GpsReader(threading.Thread):
