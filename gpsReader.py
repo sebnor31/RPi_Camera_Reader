@@ -83,16 +83,18 @@ class GpsPoller(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
-        self.gpsd = gps(mode=WATCH_ENABLE)   # starting the stream of info
         self.current_value = None
 
     def getCurrentValue(self):
         return self.current_value
 
     def run(self):
+
+        gpsd = gps(mode=WATCH_ENABLE)   # starting the stream of info
+
         try:
             while True:
-                self.current_value = self.gpsd.next()
+                self.current_value = gpsd.next()
 
         except StopIteration:
             pass
