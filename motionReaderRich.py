@@ -100,5 +100,5 @@ class MotionReader(Thread):
                         grav_x, grav_y, grav_z,
                         ts))
 
-                time.sleep(poll_interval * 1.0 / 1000.0)
-                #time.sleep(1/30.0)    # Read data at ~30Hz
+                #time.sleep(poll_interval * 1.0 / 1000.0)
+                time.sleep(1/120.0)    # Read data at ~120Hz
