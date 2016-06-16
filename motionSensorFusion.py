@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-rawCalibFile = "C:\Users\sebnor\Desktop\data\motion_2016-6-7_10-55-27.csv"
+rawCalibFile = "C:\Users\sebnor\Desktop\data\Motion/motion_2016-6-16_9-17-29.csv"
 a = np.genfromtxt(rawCalibFile, delimiter=',')
 
 print('Num of Rows: %d' % len(a))
@@ -27,73 +27,85 @@ mag_x = a[1:, 6]
 mag_y = a[1:, 7]
 mag_z = a[1:, 8] 
 
-head = a[1:, 9]
-roll = a[1:, 10]
-pitch = a[1:, 11]
+yaw = np.degrees(a[1:, 9])
+roll = np.degrees(a[1:, 10])
+pitch = np.degrees(a[1:, 11])
 
-lin_x = a[1:, 12]
-lin_y = a[1:, 13]
-lin_z = a[1:, 14] 
-
-grav_x = a[1:, 15]
-grav_y = a[1:, 16]
-grav_z = a[1:, 17] 
 
 # Plotting data
-plt.subplot(6,3,1)
+plt.subplot(3,4,1)
+plt.title("Accel_X")
 plt.plot(t, acc_x)
+plt.ylim([-2, 2])
+plt.grid()
 
-plt.subplot(6,3,2)
+plt.subplot(3,4,5)
+plt.title("Accel_Y")
 plt.plot(t, acc_y)
+plt.ylim([-2, 2])
+plt.grid()
 
-plt.subplot(6,3,3)
+plt.subplot(3,4,9)
+plt.title("Accel_Z")
 plt.plot(t, acc_z)
+plt.ylim([-2, 2])
+plt.grid()
 
-plt.subplot(6,3,4)
+plt.subplot(3,4,2)
+plt.title("Gyro_X")
 plt.plot(t, gyro_x)
+#plt.ylim([-100, 100])
+plt.grid()
 
-plt.subplot(6,3,5)
+plt.subplot(3,4,6)
+plt.title("Gyro_Y")
 plt.plot(t, gyro_y)
+#plt.ylim([-100, 100])
+plt.grid()
 
-plt.subplot(6,3,6)
+plt.subplot(3,4,10)
+plt.title("Gyro_Z")
 plt.plot(t, gyro_z)
+#plt.ylim([-100, 100])
+plt.grid()
 
-plt.subplot(6,3,7)
+plt.subplot(3,4,3)
+plt.title("Mag_X")
 plt.plot(t, mag_x)
+#plt.ylim([-400e-6, 400e-6])
+plt.grid()
 
-plt.subplot(6,3,8)
+plt.subplot(3,4,7)
+plt.title("Mag_Y")
 plt.plot(t, mag_y)
+#plt.ylim([-10, 10])
+plt.grid()
 
-plt.subplot(6,3,9)
+plt.subplot(3,4,11)
+plt.title("Mag_Z")
 plt.plot(t, mag_z)
+#plt.ylim([-10, 10])
+plt.grid()
 
-plt.subplot(6,3,10)
-plt.plot(t, head)
-
-plt.subplot(6,3,11)
+plt.subplot(3,4,4)
+plt.title("Roll (X)")
 plt.plot(t, roll)
+plt.ylim([-90, 90])
+plt.grid()
 
-plt.subplot(6,3,12)
+plt.subplot(3,4,8)
+plt.title("Pitch (Y)")
 plt.plot(t, pitch)
+plt.ylim([0, 180])
+plt.grid()
 
-plt.subplot(6,3,13)
-plt.plot(t, lin_x)
+plt.subplot(3,4,12)
+plt.title("Yaw (Z)")
+plt.plot(t, yaw)
+plt.ylim([-90, 90])
+plt.grid()
 
-plt.subplot(6,3,14)
-plt.plot(t, lin_y)
-
-plt.subplot(6,3,15)
-plt.plot(t, lin_z)
-
-plt.subplot(6,3,16)
-plt.plot(t, grav_x)
-
-plt.subplot(6,3,17)
-plt.plot(t, grav_y)
-
-plt.subplot(6,3,18)
-plt.plot(t, grav_z)
-
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 plt.show()
 
 # Remove DC component
