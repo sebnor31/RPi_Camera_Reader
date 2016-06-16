@@ -23,6 +23,7 @@ class GpsReader(threading.Thread):
         gpsFound = False
         prevLat = 0
         prevLon = 0
+        bearing = 0
 
         while True:
             gpsData = self.gpsPoller.getCurrentValue()
@@ -50,16 +51,16 @@ class GpsReader(threading.Thread):
                 speed = gpsData.speed    # Meters per second
                 climb = gpsData.climb    # Climb(+) or Sink(-) in meters per second
 
-                if (prevLat == 0):
-                    bearing = 0
-                else:
-                    bearing = self.getBearing(prevLat, prevLon, lat, lon)
+                # Update Bearing
+                if (prevLat != 0):
+                    bearing += self.getBearing(prevLat, prevLon, lat, lon)
 
+                # Write results to output file
                 with open(gpsFile, 'a') as f:
                     f.write('{0},{1},{2},{3},{4},{5},{6},{7}\n'.format(
                         lat, lon, bearing, alt, speed, climb, timeGPS, ts))
 
-                # prepare for next iteration
+                # Prepare for next iteration
                 prevLat = lat
                 prevLon = lon
                 time.sleep(0.5)
