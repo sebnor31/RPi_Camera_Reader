@@ -76,7 +76,7 @@ class GpsReader(threading.Thread):
         y = cos(latStart) * sin(latEnd) - sin(latStart) * cos(latEnd) * cos(d_Lon)
 
         bearingRad = atan2(x, y)
-        return degrees(bearingRad)
+        return ((degrees(bearingRad) + 360.0) % 360)
 
 
 class GpsPoller(threading.Thread):
