@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 import RTIMU
 import os.path
+from math import degrees
 
 
 class MotionReader(Thread):
@@ -84,7 +85,7 @@ class MotionReader(Thread):
                         accel_x, accel_y, accel_z,
                         gyro_x, gyro_y, gyro_z,
                         mag_x, mag_y, mag_z,
-                        heading, roll, pitch,
+                        degrees(heading), degrees(roll), degrees(pitch),
                         qpos_a, qpos_b, qpos_c, qpos_d,
                         ts))
 
