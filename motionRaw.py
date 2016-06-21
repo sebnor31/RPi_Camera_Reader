@@ -39,6 +39,17 @@ OUT_Z_H_A =             0x2D
 # Magnetometer (M)
 WHO_AM_I_M =            0x0F
 M_ID =                  0x3D
+CTRL_REG1_M =           0x20
+CTRL_REG2_M =           0x21
+CTRL_REG3_M =           0x22
+CTRL_REG4_M =           0x23
+
+OUT_X_L_M =             0x28
+OUT_X_H_M =             0x29
+OUT_Y_L_M =             0x2A
+OUT_Y_H_M =             0x2B
+OUT_Z_L_M =             0x2C
+OUT_Z_H_M =             0x2D
 
 ########################################################################
 
@@ -74,6 +85,21 @@ wiringPiI2CWriteReg8(imuAG, CTRL_REG7_A, CtrlReg7A_Data)
 fifoCtrl_Data = 0b00000000
 wiringPiI2CWriteReg8(imuAG, FIFO_CTRL, fifoCtrl_Data)
 
+# Set Mag ODR to 80 Hz
+ctrlReg1M_Data = 0b01111100
+wiringPiI2CWriteReg8(imuMag, CTRL_REG1_M, ctrlReg1M_Data)
+
+# Set Mag resolution to 8 gauss
+ctrlReg2M_Data = 0b00100000
+wiringPiI2CWriteReg8(imuMag, CTRL_REG2_M, ctrlReg2M_Data)
+
+# Enable Mag
+ctrlReg3M_Data = 0b00000000
+wiringPiI2CWriteReg8(imuMag, CTRL_REG3_M, ctrlReg3M_Data)
+
+# Set Z axis of Mag as ultra-high performance
+ctrlReg4M_Data = 0b00001100
+wiringPiI2CWriteReg8(imuMag, CTRL_REG4_M, ctrlReg4M_Data)
 
 while True:
     
@@ -105,8 +131,22 @@ while True:
     
     print("Accel: {0:d} ; {1:d} ; {2:d}".format(accel_X, accel_Y, accel_Z))
     
+    mag_X_L = wiringPiI2CReadReg8(imuMag, OUT_X_L_M)
+    mag_X_H = wiringPiI2CReadReg8(imuMag, OUT_X_H_M)
+    mag_X = (mag_X_H << 4) | mag_X_L
+    
+    mag_Y_L = wiringPiI2CReadReg8(imuMag, OUT_Y_L_M)
+    mag_Y_H = wiringPiI2CReadReg8(imuMag, OUT_Y_H_M)
+    mag_Y = (mag_Y_H << 4) | mag_Y_L
+
+    mag_Z_L = wiringPiI2CReadReg8(imuMag, OUT_Z_L_M)
+    mag_Z_H = wiringPiI2CReadReg8(imuMag, OUT_Z_H_M)
+    mag_Z = (mag_Z_H << 4) | mag_Z_L
+    
+    print("Mag: {0:d} ; {1:d} ; {2:d}".format(mag_X, mag_Y, mag_Z))
+    
     print("-------------\n")
-    sleep(1.0/200.0)
+    sleep(1.0/120.0)
     
 
 
