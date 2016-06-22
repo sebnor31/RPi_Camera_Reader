@@ -1,6 +1,8 @@
+from multiprocessing import Process, Queue
+from threading import Thread
 from wiringpi import *
-from time import sleep
-
+import time
+from datetime import datetime
 
 ########################################################################
 #               REGISTER ADDRESS MAP
@@ -54,101 +56,163 @@ OUT_Z_H_M =             0x2D
 ########################################################################
 
 
-# Initialize I2C communication
-setupStat = wiringPiSetup()
-imuAG = wiringPiI2CSetup(I2C_ADDR_XL_GYRO)
-imuMag = wiringPiI2CSetup(I2C_ADDR_MAG)
-
-# Verify connection is successfull by reading AG and Mag sensor IDs 
-whoAmIAG = wiringPiI2CReadReg8(imuAG, WHO_AM_I_AG)
-whoAmIMag = wiringPiI2CReadReg8(imuMag, WHO_AM_I_M)
-
-# Set ODR to 238 Hz, CutOff freq to 78 and Gyro Res to 500 dps
-CtrlReg1G_Data = 0b10001011
-wiringPiI2CWriteReg8(imuAG, CTRL_REG_1_G, CtrlReg1G_Data)
-
-#print("CTRL_REG1_G = {:08b}".format(wiringPiI2CReadReg8(imuAG, CTRL_REG_1_G)))
-
-# Deactivate High-Pass Filter on Gyro
-CtrlReg3G_Data = 0b00000000
-wiringPiI2CWriteReg8(imuAG, CTRL_REG_1_G, CtrlReg1G_Data)
-
-# Set accel + gyro mode and accel res to 8g
-CtrlReg6A_Data = 0b00011000
-wiringPiI2CWriteReg8(imuAG, CTRL_REG6_A, CtrlReg6A_Data)
-
-# Set linear accel to high res and cutoff freq, also bypass internal filter
-CtrlReg7A_Data = 0b11000000
-wiringPiI2CWriteReg8(imuAG, CTRL_REG7_A, CtrlReg7A_Data)
-
-# Disable FIFO, only read latest value to control sampling frequency
-fifoCtrl_Data = 0b00000000
-wiringPiI2CWriteReg8(imuAG, FIFO_CTRL, fifoCtrl_Data)
-
-# Set Mag ODR to 80 Hz
-ctrlReg1M_Data = 0b01111100
-wiringPiI2CWriteReg8(imuMag, CTRL_REG1_M, ctrlReg1M_Data)
-
-# Set Mag resolution to 8 gauss
-ctrlReg2M_Data = 0b00100000
-wiringPiI2CWriteReg8(imuMag, CTRL_REG2_M, ctrlReg2M_Data)
-
-# Enable Mag
-ctrlReg3M_Data = 0b00000000
-wiringPiI2CWriteReg8(imuMag, CTRL_REG3_M, ctrlReg3M_Data)
-
-# Set Z axis of Mag as ultra-high performance
-ctrlReg4M_Data = 0b00001100
-wiringPiI2CWriteReg8(imuMag, CTRL_REG4_M, ctrlReg4M_Data)
-
-while True:
+class MotionReader(Thread):
     
-    gyro_X_L = wiringPiI2CReadReg8(imuAG, OUT_X_L_G)
-    gyro_X_H = wiringPiI2CReadReg8(imuAG, OUT_X_H_G)
-    gyro_X = (gyro_X_H << 4) | gyro_X_L
-    
-    gyro_Y_L = wiringPiI2CReadReg8(imuAG, OUT_Y_L_G)
-    gyro_Y_H = wiringPiI2CReadReg8(imuAG, OUT_Y_H_G)
-    gyro_Y = (gyro_Y_H << 4) | gyro_Y_L
+    def __init__(self, outputDir):
+        Thread.__init__(self)
+        self.outDir = outputDir
 
-    gyro_Z_L = wiringPiI2CReadReg8(imuAG, OUT_Z_L_G)
-    gyro_Z_H = wiringPiI2CReadReg8(imuAG, OUT_Z_H_G)
-    gyro_Z = (gyro_Z_H << 4) | gyro_Z_L
+    def run(self):
+        # Initialize I2C communication
+        setupStat = wiringPiSetup()
+        imuAG = wiringPiI2CSetup(I2C_ADDR_XL_GYRO)
+        imuMag = wiringPiI2CSetup(I2C_ADDR_MAG)
 
-    print("Gyro: {0:d} ; {1:d} ; {2:d}".format(gyro_X, gyro_Y, gyro_Z))
-    
-    accel_X_L = wiringPiI2CReadReg8(imuAG, OUT_X_L_A)
-    accel_X_H = wiringPiI2CReadReg8(imuAG, OUT_X_H_A)
-    accel_X = (accel_X_H << 4) | accel_X_L
-    
-    accel_Y_L = wiringPiI2CReadReg8(imuAG, OUT_Y_L_A)
-    accel_Y_H = wiringPiI2CReadReg8(imuAG, OUT_Y_H_A)
-    accel_Y = (accel_Y_H << 4) | accel_Y_L
+        # Verify connection is successfull by reading AG and Mag sensor IDs 
+        whoAmIAG = wiringPiI2CReadReg8(imuAG, WHO_AM_I_AG)
+        whoAmIMag = wiringPiI2CReadReg8(imuMag, WHO_AM_I_M)
 
-    accel_Z_L = wiringPiI2CReadReg8(imuAG, OUT_Z_L_A)
-    accel_Z_H = wiringPiI2CReadReg8(imuAG, OUT_Z_H_A)
-    accel_Z = (accel_Z_H << 4) | accel_Z_L
-    
-    print("Accel: {0:d} ; {1:d} ; {2:d}".format(accel_X, accel_Y, accel_Z))
-    
-    mag_X_L = wiringPiI2CReadReg8(imuMag, OUT_X_L_M)
-    mag_X_H = wiringPiI2CReadReg8(imuMag, OUT_X_H_M)
-    mag_X = (mag_X_H << 4) | mag_X_L
-    
-    mag_Y_L = wiringPiI2CReadReg8(imuMag, OUT_Y_L_M)
-    mag_Y_H = wiringPiI2CReadReg8(imuMag, OUT_Y_H_M)
-    mag_Y = (mag_Y_H << 4) | mag_Y_L
+        # Set ODR to 238 Hz, CutOff freq to 78 and Gyro Res to 500 dps
+        CtrlReg1G_Data = 0b10001011
+        wiringPiI2CWriteReg8(imuAG, CTRL_REG_1_G, CtrlReg1G_Data)
 
-    mag_Z_L = wiringPiI2CReadReg8(imuMag, OUT_Z_L_M)
-    mag_Z_H = wiringPiI2CReadReg8(imuMag, OUT_Z_H_M)
-    mag_Z = (mag_Z_H << 4) | mag_Z_L
+        #print("CTRL_REG1_G = {:08b}".format(wiringPiI2CReadReg8(imuAG, CTRL_REG_1_G)))
+
+        # Deactivate High-Pass Filter on Gyro
+        CtrlReg3G_Data = 0b00000000
+        wiringPiI2CWriteReg8(imuAG, CTRL_REG_1_G, CtrlReg1G_Data)
+
+        # Set accel + gyro mode and accel res to 8g
+        CtrlReg6A_Data = 0b00011000
+        wiringPiI2CWriteReg8(imuAG, CTRL_REG6_A, CtrlReg6A_Data)
+
+        # Set linear accel to high res and cutoff freq, also bypass internal filter
+        CtrlReg7A_Data = 0b11000000
+        wiringPiI2CWriteReg8(imuAG, CTRL_REG7_A, CtrlReg7A_Data)
+
+        # Disable FIFO, only read latest value to control sampling frequency
+        fifoCtrl_Data = 0b00000000
+        wiringPiI2CWriteReg8(imuAG, FIFO_CTRL, fifoCtrl_Data)
+
+        # Set Mag ODR to 80 Hz
+        ctrlReg1M_Data = 0b01111100
+        wiringPiI2CWriteReg8(imuMag, CTRL_REG1_M, ctrlReg1M_Data)
+
+        # Set Mag resolution to 8 gauss
+        ctrlReg2M_Data = 0b00100000
+        wiringPiI2CWriteReg8(imuMag, CTRL_REG2_M, ctrlReg2M_Data)
+
+        # Enable Mag
+        ctrlReg3M_Data = 0b00000000
+        wiringPiI2CWriteReg8(imuMag, CTRL_REG3_M, ctrlReg3M_Data)
+
+        # Set Z axis of Mag as ultra-high performance
+        ctrlReg4M_Data = 0b00001100
+        wiringPiI2CWriteReg8(imuMag, CTRL_REG4_M, ctrlReg4M_Data)
+        
+        # Create file to save data
+        ts = datetime.now()
+        outFile = self.outDir + "motion_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
+        
+        with open(outFile, 'w') as f:
+            header = 'ACCEL_X,ACCEL_Y,ACCEL_Z,GYRO_X,GYRO_Y,GYRO_Z,MAG_X,MAG_Y,MAG_Z,TIME,SAMPLE_TIME\n'
+            f.write(header)
+
+        # Start raw data reader process
+        q = Queue()
+        readerProcess = ImuReader(imuAG, imuMag, q)
+        readerProcess.start()
+        
+        writerProcess = ImuWriter(outFile, q)
+        writerProcess.start()
+            
+        
+class ImuReader(Process):
     
-    print("Mag: {0:d} ; {1:d} ; {2:d}".format(mag_X, mag_Y, mag_Z))
+    def __init__(self, imuAG, imuMag, q):
+        Process.__init__(self)
+        self.q = q
+        self.imuAG = imuAG
+        self.imuMag = imuMag
     
-    print("-------------\n")
-    sleep(1.0/120.0)
+    def run(self):
+        
+        # Main loop that polls data indefinitely
+        prevTime = time.time()
+        
+        while True:
+            
+            gyro_X_L = wiringPiI2CReadReg8(self.imuAG, OUT_X_L_G)
+            gyro_X_H = wiringPiI2CReadReg8(self.imuAG, OUT_X_H_G)
+            gyro_X = (gyro_X_H << 4) | gyro_X_L
+            
+            gyro_Y_L = wiringPiI2CReadReg8(self.imuAG, OUT_Y_L_G)
+            gyro_Y_H = wiringPiI2CReadReg8(self.imuAG, OUT_Y_H_G)
+            gyro_Y = (gyro_Y_H << 4) | gyro_Y_L
+
+            gyro_Z_L = wiringPiI2CReadReg8(self.imuAG, OUT_Z_L_G)
+            gyro_Z_H = wiringPiI2CReadReg8(self.imuAG, OUT_Z_H_G)
+            gyro_Z = (gyro_Z_H << 4) | gyro_Z_L
+
+            accel_X_L = wiringPiI2CReadReg8(self.imuAG, OUT_X_L_A)
+            accel_X_H = wiringPiI2CReadReg8(self.imuAG, OUT_X_H_A)
+            accel_X = (accel_X_H << 4) | accel_X_L
+            
+            accel_Y_L = wiringPiI2CReadReg8(self.imuAG, OUT_Y_L_A)
+            accel_Y_H = wiringPiI2CReadReg8(self.imuAG, OUT_Y_H_A)
+            accel_Y = (accel_Y_H << 4) | accel_Y_L
+
+            accel_Z_L = wiringPiI2CReadReg8(self.imuAG, OUT_Z_L_A)
+            accel_Z_H = wiringPiI2CReadReg8(self.imuAG, OUT_Z_H_A)
+            accel_Z = (accel_Z_H << 4) | accel_Z_L
+            
+            #~ mag_X_L = wiringPiI2CReadReg8(self.imuMag, OUT_X_L_M)
+            #~ mag_X_H = wiringPiI2CReadReg8(self.imuMag, OUT_X_H_M)
+            #~ mag_X = (mag_X_H << 4) | mag_X_L
+            #~ 
+            #~ mag_Y_L = wiringPiI2CReadReg8(self.imuMag, OUT_Y_L_M)
+            #~ mag_Y_H = wiringPiI2CReadReg8(self.imuMag, OUT_Y_H_M)
+            #~ mag_Y = (mag_Y_H << 4) | mag_Y_L
+#~ 
+            #~ mag_Z_L = wiringPiI2CReadReg8(self.imuMag, OUT_Z_L_M)
+            #~ mag_Z_H = wiringPiI2CReadReg8(self.imuMag, OUT_Z_H_M)
+            #~ mag_Z = (mag_Z_H << 4) | mag_Z_L
+            
+            mag_X = 0
+            mag_Y = 0
+            mag_Z = 0
+            
+            
+            # Update time sampling variables
+            ts = datetime.now()        # Might need to use GMT-0 to protect agst local time changes???
+            mTime = time.time() - prevTime
+            prevTime = time.time()
+            
+            
+            self.q.put([accel_X, accel_Y, accel_Z, gyro_X, gyro_Y, gyro_Z, mag_X, mag_Y, mag_Z, ts, mTime])
+            #time.sleep(1.0 / 300.0)
+      
+        
+class ImuWriter(Process):
     
-
-
-
-
+    def __init__(self, outFile, q):
+        Process.__init__(self)
+        self.q = q
+        self.outFile = outFile
+    
+    def run(self):
+        
+        while True:
+            
+            data = self.q.get(True, None)
+            
+            with open(self.outFile, 'a') as f:
+                f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n'.format(*data))
+                
+            #time.sleep(1.0 / 200.0)
+            
+#f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n'.format(
+#accel_X, accel_Y, accel_Z,
+#gyro_X, gyro_Y, gyro_Z,
+#mag_X, mag_Y, mag_Z,
+#ts, mTime))

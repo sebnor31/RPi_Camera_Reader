@@ -1,6 +1,7 @@
-from motionReader import MotionReader
+#from motionReader import MotionReader
+from motionRaw import MotionReader
 from videoReader import VideoReader
-from gpsReader import GpsReader
+#from gpsReader import GpsReader
 from subprocess import call
 from datetime import datetime
 import os
@@ -35,7 +36,7 @@ outputDir = macDir + "/{0}-{1}-{2}_{3}-{4}-{5}/".format(
 
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)
-    
+
 # Launch data capture threads
 motionReader = MotionReader(outputDir)
 motionReader.start()
@@ -43,5 +44,5 @@ motionReader.start()
 #videoReader = VideoReader(outputDir)
 #videoReader.start()
 
-gpsReader = GpsReader(outputDir)
-gpsReader.start()
+#gpsReader = GpsReader(outputDir)
+#gpsReader.start()
