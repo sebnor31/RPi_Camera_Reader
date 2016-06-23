@@ -20,7 +20,7 @@ class VideoReader(Thread):
         camera = picamera.PiCamera(resolution=mResolution, framerate=mFrameRate)
 
         # Setup recording parameters
-        maxVidLen = 60       # Length of each video file (in seconds)
+        maxVidLen = 300       # Length of each video file (in seconds)
         mBitRate = 25000000    # Max supported bit rate to provide higher quality
         mQuality = 10	       # For H264 format, 10 is min value for the highest quality
 
