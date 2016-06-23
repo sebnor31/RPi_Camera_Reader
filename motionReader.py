@@ -51,13 +51,19 @@ class MotionReader(Thread):
         outFile = self.outDir + "motion_{0}-{1}-{2}_{3}-{4}-{5}.csv".format(ts.year, ts.month, ts.day, ts.hour, ts.minute, ts.second)
 
         with open(outFile, 'w') as f:
-            header = 'ACCEL_X,ACCEL_Y,ACCEL_Z,GYRO_X,GYRO_Y,GYRO_Z,MAG_X,MAG_Y,MAG_Z,HEAD,ROLL,PITCH,QPOS_A,QPS_B,QPOS_C,QPOS_D,TIME\n'
+            header = 'ACCEL_X,ACCEL_Y,ACCEL_Z,GYRO_X,GYRO_Y,GYRO_Z,MAG_X,MAG_Y,MAG_Z,HEAD,ROLL,PITCH,QPOS_A,QPS_B,QPOS_C,QPOS_D,TIME,SAMPLE_TIME\n'
             f.write(header)
 
         # Main loop that polls data indefinitely
+        prevTime = time.time()
+
         while True:
 
             if imu.IMURead():
+
+                mTime = time.time() - prevTime
+                prevTime = time.time()
+
                 # Get current sample time stamp
                 ts = datetime.now()        # Might need to use GMT-0 to protect agst local time changes???
 
@@ -81,12 +87,12 @@ class MotionReader(Thread):
                 qpos_a, qpos_b, qpos_c, qpos_d = data["fusionQPose"]
 
                 with open(outFile, 'a') as f:
-                    f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}\n'.format(
+                    f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17}\n'.format(
                         accel_x, accel_y, accel_z,
                         gyro_x, gyro_y, gyro_z,
                         mag_x, mag_y, mag_z,
                         degrees(heading), degrees(roll), degrees(pitch),
                         qpos_a, qpos_b, qpos_c, qpos_d,
-                        ts))
+                        ts, mTime))
 
-                time.sleep(1 / 120.0)    # Read data at ~120Hz
+                #time.sleep(1 / 120.0)    # Read data at ~120Hz

@@ -142,46 +142,21 @@ class ImuReader(Process):
         
         while True:
             
-            gyro_X_L = wiringPiI2CReadReg8(self.imuAG, OUT_X_L_G)
-            gyro_X_H = wiringPiI2CReadReg8(self.imuAG, OUT_X_H_G)
-            gyro_X = (gyro_X_H << 4) | gyro_X_L
-            
-            gyro_Y_L = wiringPiI2CReadReg8(self.imuAG, OUT_Y_L_G)
-            gyro_Y_H = wiringPiI2CReadReg8(self.imuAG, OUT_Y_H_G)
-            gyro_Y = (gyro_Y_H << 4) | gyro_Y_L
+            accel_X = wiringPiI2CReadReg16(self.imuAG, OUT_X_L_A)
+            accel_Y = wiringPiI2CReadReg16(self.imuAG, OUT_Y_L_A)
+            accel_Z = wiringPiI2CReadReg16(self.imuAG, OUT_Z_L_A)
+                        
+            gyro_X = wiringPiI2CReadReg16(self.imuAG, OUT_X_L_G)
+            gyro_Y = wiringPiI2CReadReg16(self.imuAG, OUT_Y_L_G)
+            gyro_Z = wiringPiI2CReadReg16(self.imuAG, OUT_Z_L_G)
 
-            gyro_Z_L = wiringPiI2CReadReg8(self.imuAG, OUT_Z_L_G)
-            gyro_Z_H = wiringPiI2CReadReg8(self.imuAG, OUT_Z_H_G)
-            gyro_Z = (gyro_Z_H << 4) | gyro_Z_L
+            mag_X = wiringPiI2CReadReg16(self.imuMag, OUT_X_L_M)
+            mag_Y = wiringPiI2CReadReg16(self.imuMag, OUT_Y_L_M)
+            mag_Z = wiringPiI2CReadReg16(self.imuMag, OUT_Z_L_M)
 
-            accel_X_L = wiringPiI2CReadReg8(self.imuAG, OUT_X_L_A)
-            accel_X_H = wiringPiI2CReadReg8(self.imuAG, OUT_X_H_A)
-            accel_X = (accel_X_H << 4) | accel_X_L
-            
-            accel_Y_L = wiringPiI2CReadReg8(self.imuAG, OUT_Y_L_A)
-            accel_Y_H = wiringPiI2CReadReg8(self.imuAG, OUT_Y_H_A)
-            accel_Y = (accel_Y_H << 4) | accel_Y_L
-
-            accel_Z_L = wiringPiI2CReadReg8(self.imuAG, OUT_Z_L_A)
-            accel_Z_H = wiringPiI2CReadReg8(self.imuAG, OUT_Z_H_A)
-            accel_Z = (accel_Z_H << 4) | accel_Z_L
-            
             #~ mag_X_L = wiringPiI2CReadReg8(self.imuMag, OUT_X_L_M)
             #~ mag_X_H = wiringPiI2CReadReg8(self.imuMag, OUT_X_H_M)
-            #~ mag_X = (mag_X_H << 4) | mag_X_L
-            #~ 
-            #~ mag_Y_L = wiringPiI2CReadReg8(self.imuMag, OUT_Y_L_M)
-            #~ mag_Y_H = wiringPiI2CReadReg8(self.imuMag, OUT_Y_H_M)
-            #~ mag_Y = (mag_Y_H << 4) | mag_Y_L
-#~ 
-            #~ mag_Z_L = wiringPiI2CReadReg8(self.imuMag, OUT_Z_L_M)
-            #~ mag_Z_H = wiringPiI2CReadReg8(self.imuMag, OUT_Z_H_M)
-            #~ mag_Z = (mag_Z_H << 4) | mag_Z_L
-            
-            mag_X = 0
-            mag_Y = 0
-            mag_Z = 0
-            
+            #~ mag_X = (mag_X_H << 8) | mag_X_L
             
             # Update time sampling variables
             ts = datetime.now()        # Might need to use GMT-0 to protect agst local time changes???
@@ -190,7 +165,8 @@ class ImuReader(Process):
             
             
             self.q.put([accel_X, accel_Y, accel_Z, gyro_X, gyro_Y, gyro_Z, mag_X, mag_Y, mag_Z, ts, mTime])
-            #time.sleep(1.0 / 300.0)
+            
+            time.sleep(1.0 / 200.0)
       
         
 class ImuWriter(Process):
@@ -208,11 +184,3 @@ class ImuWriter(Process):
             
             with open(self.outFile, 'a') as f:
                 f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n'.format(*data))
-                
-            #time.sleep(1.0 / 200.0)
-            
-#f.write('{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n'.format(
-#accel_X, accel_Y, accel_Z,
-#gyro_X, gyro_Y, gyro_Z,
-#mag_X, mag_Y, mag_Z,
-#ts, mTime))
